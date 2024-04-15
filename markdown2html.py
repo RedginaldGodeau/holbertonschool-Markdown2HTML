@@ -7,66 +7,6 @@ _main convert markdown to html :)
 from os.path import exists
 import sys
 
-def clean_text(text, character):
-    """clean_text
-
-    Args:
-        text (string): line to clean
-        character (string): char clean
-
-    Returns:
-        string: result
-    """
-    return text.replace(character, "").replace("\n", "").strip()
-
-def read_markdown_file (markdown_file):
-    """read_markdown_file
-
-    Args:
-        markdownFile (string): file used for markdown to html
-
-    Returns:
-        string: the result of markdown to html
-    """
-    markdown = open(markdown_file, "r")
-    output_str = ""
-    current_u_list = False
-    current_o_list = False
-
-    for line in markdown:
-        if "-" not in line and current_u_list:
-            current_u_list = False
-            output_str += "</ul>\n"
-        if "*" not in line and current_o_list:
-            current_o_list = False
-            output_str += "</ol>\n"
-
-        if "#" in line:
-            headline_num = line.count("#")
-            just_text = clean_text(line, "#")
-            output_str += "<h{0}>{1}</h{0}>\n".format(headline_num, just_text)
-        elif '-' in line:
-            if not current_u_list:
-                current_u_list = True
-                output_str += "<ul>\n"
-            just_text = clean_text(line, "-")
-            output_str += "<li>{0}</li>\n".format(just_text)
-        elif '*' in line:
-            if not current_o_list:
-                current_o_list = True
-                output_str += "<ol>\n"
-            just_text = clean_text(line, "*")
-            output_str += "<li>{0}</li>\n".format(just_text)
-    if current_u_list:
-        output_str += "</ul>\n"
-    if current_o_list:
-        output_str += "</ol>\n"
-
-    markdown.close()
-    return output_str
-
-
-
 if __name__ == "__main__":
     args = sys.argv
     if len(args) < 3:
@@ -80,9 +20,73 @@ if __name__ == "__main__":
         sys.stderr.write("Missing " + input_file + "\n")
         sys.exit(1)
 
-    result = read_markdown_file(input_file)
-    html = open(output_file, 'w')
-    html.write(result)
+    mardown_index = []
+    current_array = []
+    current_markdown_char = ""
 
-    #print(OutputStr, end='')
+    markdown = open(input_file, "r")
+    for line in markdown:
+        markdown_char = ""
+
+        if "#" in line:
+            markdown_char = "#"
+            mardown_index.append({"char": "#", "line": line.replace("\n", "")})
+        elif "-" in line:
+            markdown_char = "-"
+        elif "*" in line:
+            markdown_char = "*"
+        elif len(line) > 1:
+            markdown_char = "txt"
+        else:
+            markdown_char = "other"
+
+        if current_markdown_char == markdown_char and current_markdown_char != "#":
+            current_array.append(
+                {"char": markdown_char, "line": line.replace("\n", "")}
+            )
+        elif current_markdown_char != markdown_char and current_markdown_char != "#":
+            mardown_index.append(current_array)
+            current_array = []
+            current_array.append(
+                {"char": markdown_char, "line": line.replace("\n", "")}
+            )
+        current_markdown_char = markdown_char
+
+    output_string = ""
+
+    for index in mardown_index:
+        if isinstance(index, list) == True and len(index) > 0:
+            if index[0]["char"] == "-" or index[0]["char"] == "*":
+                if index[0]["char"] == "-":
+                    output_string += "<ul>\n"
+                elif index[0]["char"] == "*":
+                    output_string += "<ol>\n"
+                for mrd in index:
+                    text = mrd["line"].replace("-", "").replace("*", "").strip()
+                    if mrd["char"] == "-" or mrd["char"] == "*":
+                        output_string += "<li>{0}</li>\n".format(text)
+                if index[0]["char"] == "-":
+                    output_string += "</ul>\n"
+                elif index[0]["char"] == "*":
+                    output_string += "</ol>\n"
+            elif index[0]["char"] == "txt":
+                output_string += "<p>\n"
+                for idx in range(len(index)):
+                    text = index[idx]["line"].strip()
+                    output_string += "{0}\n".format(text)
+                    if len(index)-1 > idx:
+                        output_string += "<br/>\n"
+                output_string += "</p>\n"
+
+        elif isinstance(index, dict) == True:
+            if index["char"] == "#":
+                num_of_header = index["line"].count("#")
+                text = index["line"].replace("#", "").strip()
+                output_string += "<h{0}>{1}</h{0}>\n".format(num_of_header, text)
+    
+    html = open(output_file, 'w')
+    html.write(output_string)
+    html.close()
+    markdown.close()
+
     sys.exit(0)
