@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """
 _main convert markdown to html :)
 """
