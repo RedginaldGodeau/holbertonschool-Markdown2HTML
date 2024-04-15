@@ -20,4 +20,14 @@ if __name__ == "__main__":
         sys.stderr.write("Missing " + inputFile + "\n")
         sys.exit(1)
 
+    markdown = open(inputFile, "r")
+    OutputStr = ""
+
+    for line in markdown:
+        if "#" in line:
+            headerNum = line.count('#')
+            justText = line.replace("#", "").replace("\n", "").strip()
+            OutputStr += "<h{0}>{1}</h{0}>\n".format(headerNum, justText)
+
+    print(OutputStr)
     sys.exit(0)
