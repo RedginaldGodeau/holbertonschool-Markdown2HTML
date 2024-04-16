@@ -67,7 +67,6 @@ if __name__ == "__main__":
             current_group.append(index)
         prev_item = index
     markdown_grouped.append(current_group)
-    print(markdown_grouped)
     output_str = ""
     for index in markdown_grouped:
         if isinstance(index, list):
