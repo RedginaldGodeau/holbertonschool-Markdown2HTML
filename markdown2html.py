@@ -7,6 +7,31 @@ _main convert markdown to html :)
 from os.path import exists
 import sys
 import re
+import hashlib
+
+def md5_lower(match):
+    """md5_lower
+
+    Args:
+        match (string): _description_
+
+    Returns:
+        string: md5
+    """
+    content = match.group(1)
+    return hashlib.md5(content.encode()).hexdigest().lower()
+
+def remove_c(match):
+    """match
+
+    Args:
+        match (string): text
+
+    Returns:
+        string: text without c
+    """
+    content = match.group(1)
+    return content.replace('c', '').replace('C', '')
 
 def text_transform(txt):
     """text_transform
@@ -19,6 +44,8 @@ def text_transform(txt):
     """
     formatted_text = re.sub(r"__([^_]+)__(?!_)", r"<em>\1</em>", txt)
     formatted_text = re.sub(r"\*\*([^*]+)\*\*", r"<b>\1</b>", formatted_text)
+    formatted_text = re.sub(r'\[\[(.*?)\]\]', md5_lower, formatted_text)
+    formatted_text = re.sub(r'\(\((.*?)\)\)', remove_c, formatted_text, flags=re.IGNORECASE)
     return formatted_text
 
 if __name__ == "__main__":
