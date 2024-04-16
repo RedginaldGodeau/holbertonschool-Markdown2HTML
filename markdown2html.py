@@ -47,7 +47,6 @@ if __name__ == "__main__":
             mardown_index.append({"char": "txt", "line": line.replace("\n", "")})
         else:
             mardown_index.append({"char": "other", "line": line.replace("\n", "")})
-
     markdown_grouped = []
     current_group = []
     prev_item = None
@@ -66,9 +65,9 @@ if __name__ == "__main__":
                 markdown_grouped.append(current_group)
             current_group = []
             current_group.append(index)
-
         prev_item = index
-
+    markdown_grouped.append(current_group)
+    print(markdown_grouped)
     output_str = ""
     for index in markdown_grouped:
         if isinstance(index, list):

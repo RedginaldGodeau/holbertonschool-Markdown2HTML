@@ -1,9 +1,8 @@
-# my title
-- hello
-- bye
+# My title
+- Hello
+- Bye
 
 Hello
 
-**I'm a text**
-__with 2 lines__
-
+I'm a text
+with 2 lines
